@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>JEE Tracker — KRUSHNA</title>
+  <link rel="icon" type="image/png" href="jee-icon.png">
+  <style>
+    :root{--bg:#f6f7fb;--card:#ffffff;--text:#111827;--muted:#6b7280;--accent:#5b5bd6;--good:#16a34a;--danger:#dc2626;--border:#e5e7eb;--soft:#eef2ff;}
+    html[data-theme='dark']{--bg:#0f1115;--card:#161a22;--text:#f9fafb;--muted:#a1aab8;--accent:#8b8cff;--good:#34d399;--danger:#fda4af;--border:#2a2f3a;--soft:#222635;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:16px auto;padding:14px}
+    header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    h1{margin:0;font-size:1.55rem;font-weight:700}
+    .small{font-size:13px;color:var(--muted)}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{padding:7px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer}
+    .tab.active{color:var(--text);border-color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--card));font-weight:600}
+    .btn{border:1px solid var(--border);background:var(--card);color:var(--text);padding:7px 10px;border-radius:10px;cursor:pointer}
+    .btn.ghost{color:var(--accent)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px}
+    .row{display:flex;gap:12px;align-items:center}
+    .progress{height:8px;background:var(--soft);border-radius:999px;overflow:hidden}
+    .progress > div{height:100%;width:0%;transition:width .25s ease;background:linear-gradient(90deg,var(--good),var(--accent))}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:9px;border-bottom:1px solid var(--border);text-align:center}
+    th{font-size:13px;color:var(--muted);font-weight:600}
+    td:first-child{text-align:left}
+    .highlight{background:color-mix(in srgb, var(--good) 7%, transparent)}
+    input[type="text"],input[type="number"],input[type="date"]{padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text)}
+    input[type="checkbox"]{transform:scale(1.2);margin:6px}
+    .edit-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+    .edit-mode-note{font-size:12px;color:var(--muted);margin-top:8px}
+    .del-btn{background:transparent;border:1px solid color-mix(in srgb, var(--danger) 20%, var(--border));color:var(--danger);padding:5px 8px;border-radius:8px;cursor:pointer;margin-left:8px}
+    .class-bars{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .class-bar{flex:1;min-width:240px}
+    .panel-title{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+    .panel-box{width:320px;max-width:100%}
+    .credit-badge{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:12px;padding:6px 10px;border-radius:999px;background:color-mix(in srgb, var(--card) 82%, transparent);border:1px solid var(--border);color:var(--muted);backdrop-filter:blur(6px);pointer-events:none}
+    .tests-form{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .tests-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .stat{background:var(--card);padding:8px 10px;border:1px solid var(--border);border-radius:10px;min-width:120px;text-align:center}
+    footer{padding-top:4px}
+    @media(max-width:880px){.row{flex-direction:column;align-items:flex-start}th,td{padding:7px;font-size:13px}.panel-box{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div style="text-align:center;font-size:18px;font-weight:800;letter-spacing:.5px;margin-bottom:10px">MADE BY KRUSHNA</div>
+    <header>
+      <div>
+        <h1>KRUSHNA — JEE Tracker</h1>
+        <div class="small">Simple chapter tracker with revision checkboxes</div>
+      </div>
+      <div class="controls">
+        <div class="tabs" role="tablist">
+          <button id="tab11" class="tab">Class 11</button>
+          <button id="tab12" class="tab">Class 12</button>
+          <button id="tabTests" class="tab">Tests</button>
+        </div>
+        <button id="themeBtn" class="btn ghost">Theme</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:280px">
+          <div class="small">Overall completion</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+            <div style="flex:1"><div class="progress"><div id="overallBar"></div></div></div>
+            <div style="width:56px;text-align:right"><strong id="overallPct">0%</strong></div>
+          </div>
+          <div class="small" id="overallCounts" style="margin-top:8px"></div>
+          <div style="margin-top:12px" class="class-bars">
+            <div class="class-bar"><div class="small">Class 11</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div class="progress" style="flex:1"><div id="class11Bar"></div></div><div style="width:42px;text-align:right"><strong id="class11Pct">0%</strong></div></div></div>
+            <div class="class-bar"><div class="small">Class 12</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><div class="progress" style="flex:1"><div id="class12Bar"></div></div><div style="width:42px;text-align:right"><strong id="class12Pct">0%</strong></div></div></div>
+          </div>
+        </div>
+        <div class="panel-box"><div class="small">Subject quick stats</div><div id="subjectStats" style="margin-top:8px;display:flex;flex-direction:column;gap:8px"></div></div>
+      </div>
+    </section>
+
+    <div id="content"></div>
+    <footer class="small" id="creditFooter" style="text-align:center;margin-top:8px">Made by KRUSHNA • Made for personal JEE prep • Offline • localStorage</footer>
+    <div class="credit-badge" id="creditBadge">Made by KRUSHNA</div>
+  </div>
+
+<script>
+const DEFAULT_SYLLABUS = {
+  '11th': {
+    Physics: ['Basic Maths','Units & Dimensions','Kinematics 1D','Kinematics 2D','Laws of Motion','Circular Motion','Work Power & Energy','Centre of Mass','Rotational Motion','Gravitation','Solids','Fluids','Matter','KTG & Thermodynamics','SHM','Waves','Instruments'],
+    Chemistry: { Physical: ['Mole Concept','Atomic Structure','State of Matter','Thermo','Chemical Equilibrium','Ionic Equilibrium','Redox'], Organic: ['IUPAC','Isomerism','GOC','Purification'], Inorganic: ['Periodic Table','Chemical Bonding','s-Block','p-Block'] },
+    Mathematics: ['Basic Maths','Sets','Trigo-1','Trigo-2','Quadratic Eqn','Complex - 1','Sequence & Series','PNC','Binomial Theorem','Straight Line','Circle','Parabola','Ellipse','Hyperbola','Complex - 2','Statistics','Solution of Triangle']
+  },
+  '12th': {
+    Physics: ['Electrostatics','Electric Potential','Current Electricity','Capacitance','Magnetism','EMI','Magnetism & Matter','AC','EM Waves','Ray Optics','Wave Optics','Dual Nature','Atoms','Nuclei','Semiconductor'],
+    Chemistry: { Physical: ['Solutions','Chemical Kinetics','Electrochemistry'], Organic: ['Hydrocarbon','Haloalkanes','Alcohol Phenol & Ether','Aldehyde & Ketone','Amines','Biomolecule'], Inorganic: ['Coordination Compound','p-Block','d & f Block','Salt Analysis','Metallurgy'] },
+    Mathematics: ['Determinants','Matrices','Relation & Function','ITF','Limits','Method of Differentiation','Application of Derivative','Indefinite Integration','Definite Integration','Application of Integral','Differential Equation','Vectors','3D','Probability']
+  }
+};
+const STORAGE_KEY = 'jee-tracker-stable-v5';
+function safeLoadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return null; const parsed = JSON.parse(raw); if(typeof parsed !== 'object' || !parsed.cls || typeof parsed.progress !== 'object') return null; return parsed; }catch(e){ return null; } }
+const saved = safeLoadState();
+const state = saved || { cls: '11th', view: 'syllabus', progress: {}, tests: [], syllabus: JSON.parse(JSON.stringify(DEFAULT_SYLLABUS)) };
+if(!state.syllabus) state.syllabus = JSON.parse(JSON.stringify(DEFAULT_SYLLABUS));
+if(!state.progress) state.progress = {};
+if(!state.tests) state.tests = [];
+if(!state.view) state.view = 'syllabus';
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ console.warn('Save failed', e); } }
+const editMode = {'11th': { Physics:false, 'Chemistry - Physical':false, 'Chemistry - Organic':false, 'Chemistry - Inorganic':false, Mathematics:false },'12th': { Physics:false, 'Chemistry - Physical':false, 'Chemistry - Organic':false, 'Chemistry - Inorganic':false, Mathematics:false }};
+function getTick(cls, subj, ch, type){ return !!(state.progress?.[cls]?.[subj]?.[ch]?.[type]); }
+function setTick(cls, subj, ch, type, val){ state.progress[cls] = state.progress[cls] || {}; state.progress[cls][subj] = state.progress[cls][subj] || {}; state.progress[cls][subj][ch] = state.progress[cls][subj][ch] || { revised:false }; state.progress[cls][subj][ch][type] = !!val; saveState(); render(); }
+function addChapterTo(cls, subj, ch){ if(subj === 'Chemistry - Physical') state.syllabus[cls].Chemistry.Physical.push(ch); else if(subj === 'Chemistry - Organic') state.syllabus[cls].Chemistry.Organic.push(ch); else if(subj === 'Chemistry - Inorganic') state.syllabus[cls].Chemistry.Inorganic.push(ch); else state.syllabus[cls][subj].push(ch); saveState(); render(); }
+function removeChapterFrom(cls, subj, ch){ if(subj.startsWith('Chemistry')){ const part = subj.split(' - ')[1]; state.syllabus[cls].Chemistry[part] = state.syllabus[cls].Chemistry[part].filter(x => x !== ch); } else { state.syllabus[cls][subj] = state.syllabus[cls][subj].filter(x => x !== ch); } if(state.progress[cls]?.[subj]?.[ch]) delete state.progress[cls][subj][ch]; saveState(); render(); }
+
+function addTest(test){ state.tests.unshift(test); saveState(); render(); }
+function removeTest(idx){ if(idx < 0 || idx >= state.tests.length) return; if(confirm('Delete this test record?')){ state.tests.splice(idx, 1); saveState(); render(); } }
+function computeTestStats(){ const arr = state.tests || []; if(arr.length === 0) return { count:0, latest:null, previous:null, delta:null, avgPercent:null, avgAccuracy:null }; const latest = arr[0]; const previous = arr[1] || null; const delta = previous ? (latest.percent - previous.percent) : null; let sumP = 0, sumA = 0; arr.forEach(t => { sumP += (t.percent || 0); sumA += (t.accuracy || 0); }); return { count:arr.length, latest, previous, delta, avgPercent: Math.round((sumP / arr.length) * 100) / 100, avgAccuracy: Math.round((sumA / arr.length) * 100) / 100 }; }
+
+function computeSubjectCombinedProgress(cls, subjKey){ let chapters = []; if(subjKey === 'Chemistry'){ const chem = state.syllabus[cls].Chemistry; chapters = [...chem.Physical, ...chem.Organic, ...chem.Inorganic]; let revised = 0; chapters.forEach(ch => { if(getTick(cls,'Chemistry - Physical',ch,'revised') || getTick(cls,'Chemistry - Organic',ch,'revised') || getTick(cls,'Chemistry - Inorganic',ch,'revised')) revised++; }); return { total: chapters.length, revised }; } chapters = state.syllabus[cls][subjKey] || []; let revised = 0; chapters.forEach(ch => { if(getTick(cls, subjKey, ch, 'revised')) revised++; }); return { total: chapters.length, revised }; }
+function computeClassProgress(cls){ let total = 0, done = 0; const phys = state.syllabus[cls].Physics || []; total += phys.length; phys.forEach(ch => { if(getTick(cls,'Physics',ch,'revised')) done++; }); const chem = state.syllabus[cls].Chemistry; const allChem = [...chem.Physical, ...chem.Organic, ...chem.Inorganic]; total += allChem.length; allChem.forEach(ch => { if(getTick(cls,'Chemistry - Physical',ch,'revised') || getTick(cls,'Chemistry - Organic',ch,'revised') || getTick(cls,'Chemistry - Inorganic',ch,'revised')) done++; }); const maths = state.syllabus[cls].Mathematics || []; total += maths.length; maths.forEach(ch => { if(getTick(cls,'Mathematics',ch,'revised')) done++; }); return { total, done, pct: total ? Math.round((done/total)*100) : 0 }; }
+function computeOverallAllClasses(){ let total = 0, done = 0; ['11th','12th'].forEach(cls => { const phys = state.syllabus[cls].Physics || []; total += phys.length; phys.forEach(ch => { if(getTick(cls,'Physics',ch,'revised')) done++; }); const chem = state.syllabus[cls].Chemistry; const allChem = [...chem.Physical, ...chem.Organic, ...chem.Inorganic]; total += allChem.length; allChem.forEach(ch => { if(getTick(cls,'Chemistry - Physical',ch,'revised') || getTick(cls,'Chemistry - Organic',ch,'revised') || getTick(cls,'Chemistry - Inorganic',ch,'revised')) done++; }); const maths = state.syllabus[cls].Mathematics || []; total += maths.length; maths.forEach(ch => { if(getTick(cls,'Mathematics',ch,'revised')) done++; }); }); return { total, done, pct: total ? Math.round((done/total)*100) : 0 }; }
+
+const content = document.getElementById('content');
+const overallBar = document.getElementById('overallBar');
+const overallPct = document.getElementById('overallPct');
+const overallCounts = document.getElementById('overallCounts');
+const subjectStats = document.getElementById('subjectStats');
+
+function enforceCredit(){ document.title = 'JEE Tracker — KRUSHNA'; const footer = document.getElementById('creditFooter'); if(footer && !footer.textContent.includes('Made by KRUSHNA')) footer.textContent = 'Made by KRUSHNA • Made for personal JEE prep • Offline • localStorage'; const badge = document.getElementById('creditBadge'); if(badge && badge.textContent !== 'Made by KRUSHNA') badge.textContent = 'Made by KRUSHNA'; }
+
+function renderTestsView(){
+  const block = document.createElement('section');
+  block.className = 'card';
+  const stats = computeTestStats();
+  block.innerHTML = `<div class='panel-title'><div><strong>Test Tracker</strong><div class='small'>Add mock tests and track progress</div></div></div>`;
+
+  const form = document.createElement('div');
+  form.className = 'tests-form';
+  const nameInput = document.createElement('input'); nameInput.type='text'; nameInput.placeholder='Test name';
+  const dateInput = document.createElement('input'); dateInput.type='date'; dateInput.value = new Date().toISOString().slice(0,10);
+  const marksInput = document.createElement('input'); marksInput.type='number'; marksInput.placeholder='Marks';
+  const totalInput = document.createElement('input'); totalInput.type='number'; totalInput.placeholder='Total';
+  const correctInput = document.createElement('input'); correctInput.type='number'; correctInput.placeholder='Correct';
+  const incorrectInput = document.createElement('input'); incorrectInput.type='number'; incorrectInput.placeholder='Incorrect';
+  const addBtn = document.createElement('button'); addBtn.className='btn'; addBtn.textContent='Add Test';
+  addBtn.onclick = () => {
+    const name = nameInput.value.trim() || 'Test';
+    const date = dateInput.value || new Date().toISOString().slice(0,10);
+    const marksObtained = Number(marksInput.value) || 0;
+    const totalMarks = Number(totalInput.value) || 0;
+    const correct = Number(correctInput.value) || 0;
+    const incorrect = Number(incorrectInput.value) || 0;
+    const attempted = correct + incorrect;
+    const percent = totalMarks > 0 ? Math.round((marksObtained / totalMarks) * 10000) / 100 : 0;
+    const accuracy = attempted > 0 ? Math.round((correct / attempted) * 10000) / 100 : 0;
+    addTest({ name, date, marksObtained, totalMarks, correct, incorrect, attempted, percent, accuracy, created: Date.now() });
+    nameInput.value=''; marksInput.value=''; totalInput.value=''; correctInput.value=''; incorrectInput.value=''; dateInput.value = new Date().toISOString().slice(0,10);
+  };
+  [nameInput,dateInput,marksInput,totalInput,correctInput,incorrectInput].forEach(el => form.appendChild(el));
+  form.appendChild(addBtn);
+  block.appendChild(form);
+
+  const latestPct = stats.latest ? `${stats.latest.percent}%` : '—';
+  const prevPct = stats.previous ? `${stats.previous.percent}%` : '—';
+  const deltaText = stats.delta === null ? '—' : `${stats.delta >= 0 ? '+' : ''}${stats.delta.toFixed(2)}%`;
+  const statsDiv = document.createElement('div');
+  statsDiv.className = 'tests-stats';
+  statsDiv.innerHTML = `<div class='stat'><div class='small'>Latest %</div><div><strong>${latestPct}</strong></div></div><div class='stat'><div class='small'>Previous %</div><div><strong>${prevPct}</strong></div></div><div class='stat'><div class='small'>Change</div><div><strong>${deltaText}</strong></div></div><div class='stat'><div class='small'>Avg %</div><div><strong>${stats.avgPercent ?? '—'}</strong></div></div><div class='stat'><div class='small'>Avg Accuracy</div><div><strong>${stats.avgAccuracy ?? '—'}</strong></div></div><div class='stat'><div class='small'>Tests</div><div><strong>${stats.count}</strong></div></div>`;
+  block.appendChild(statsDiv);
+
+  const table = document.createElement('table');
+  table.innerHTML = `<thead><tr><th>Date</th><th>Test</th><th>Marks</th><th>%</th><th>Attempted</th><th>Correct</th><th>Incorrect</th><th>Accuracy</th><th>Actions</th></tr></thead>`;
+  const tbody = document.createElement('tbody');
+  (state.tests || []).forEach((t, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${t.date}</td><td style='text-align:left'>${t.name}</td><td>${t.marksObtained}/${t.totalMarks}</td><td>${t.percent}%</td><td>${t.attempted}</td><td>${t.correct}</td><td>${t.incorrect}</td><td>${t.accuracy}%</td><td><button class='btn ghost' data-edit='${idx}'>Edit</button> <button class='del-btn' data-del='${idx}'>Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  block.appendChild(table);
+
+  block.addEventListener('click', (e) => {
+    const del = e.target.closest('[data-del]');
+    const edit = e.target.closest('[data-edit]');
+    if(del){ removeTest(Number(del.dataset.del)); }
+    if(edit){
+      const idx = Number(edit.dataset.edit);
+      const t = state.tests[idx];
+      if(!t) return;
+      nameInput.value = t.name || '';
+      dateInput.value = t.date || new Date().toISOString().slice(0,10);
+      marksInput.value = t.marksObtained ?? '';
+      totalInput.value = t.totalMarks ?? '';
+      correctInput.value = t.correct ?? '';
+      incorrectInput.value = t.incorrect ?? '';
+      removeTest(idx);
+      nameInput.focus();
+    }
+  });
+
+  return block;
+}
+
+function render(){
+  const cls = state.cls || '11th';
+  content.innerHTML = '';
+  if(state.view === 'tests'){
+    content.appendChild(renderTestsView());
+    const overall = computeOverallAllClasses();
+    overallBar.style.width = overall.pct + '%';
+    overallPct.textContent = overall.pct + '%';
+    overallCounts.textContent = `${overall.total} chapters • completed ${overall.done}/${overall.total}`;
+    const c11 = computeClassProgress('11th'), c12 = computeClassProgress('12th');
+    document.getElementById('class11Bar').style.width = c11.pct + '%';
+    document.getElementById('class12Bar').style.width = c12.pct + '%';
+    document.getElementById('class11Pct').textContent = c11.pct + '%';
+    document.getElementById('class12Pct').textContent = c12.pct + '%';
+    subjectStats.innerHTML = '';
+    ['Physics','Chemistry','Mathematics'].forEach(s => {
+      let totalCh = 0, completedChapters = 0;
+      if(s === 'Chemistry'){
+        ['11th','12th'].forEach(clsName => {
+          const chem = state.syllabus[clsName].Chemistry; const all = [...chem.Physical, ...chem.Organic, ...chem.Inorganic]; totalCh += all.length; all.forEach(ch => { if(getTick(clsName,'Chemistry - Physical',ch,'revised') || getTick(clsName,'Chemistry - Organic',ch,'revised') || getTick(clsName,'Chemistry - Inorganic',ch,'revised')) completedChapters++; });
+        });
+      } else {
+        ['11th','12th'].forEach(clsName => { const chs = state.syllabus[clsName][s] || []; totalCh += chs.length; chs.forEach(ch => { if(getTick(clsName,s,ch,'revised')) completedChapters++; }); });
+      }
+      const percent = totalCh ? Math.round((completedChapters/totalCh)*100) : 0;
+      const el = document.createElement('div');
+      el.innerHTML = `<div style='display:flex;justify-content:space-between'><div><strong>${s}</strong></div><div class='small'>${percent}% ( ${completedChapters}/${totalCh} )</div></div>`;
+      subjectStats.appendChild(el);
+    });
+    enforceCredit();
+    updateTabs();
+    return;
+  }
+
+  ['Physics','Chemistry','Mathematics'].forEach(subjKey => {
+    if(subjKey === 'Chemistry'){
+      const block = document.createElement('section'); block.className='card';
+      const stats = computeSubjectCombinedProgress(cls, 'Chemistry');
+      const revPct = Math.round((stats.revised/Math.max(1, stats.total))*100);
+      const header = document.createElement('div'); header.className='panel-title';
+      header.innerHTML = `<div><strong>Chemistry</strong><div class='small'>${stats.total} chapters</div></div><div class='panel-box'><div class='small'>Revision ${stats.revised}/${stats.total}</div><div class='progress' style='margin-top:5px'><div style='width:${revPct}%;'></div></div></div>`;
+      const editBtn = document.createElement('button'); editBtn.textContent='Edit'; editBtn.className='btn'; editBtn.onclick = () => { const next = !editMode[cls]['Chemistry - Physical']; editMode[cls]['Chemistry - Physical'] = next; editMode[cls]['Chemistry - Organic'] = next; editMode[cls]['Chemistry - Inorganic'] = next; render(); };
+      header.querySelector('div').appendChild(editBtn); block.appendChild(header);
+      ['Physical','Organic','Inorganic'].forEach(part => {
+        const subName = 'Chemistry - ' + part; const chapters = state.syllabus[cls].Chemistry[part]; const partBlock = document.createElement('div'); partBlock.style.marginTop='12px'; partBlock.innerHTML = `<div style='font-weight:700;margin-bottom:4px'>${part}</div>`; const table = document.createElement('table'); table.innerHTML = `<thead><tr><th style='width:70%'>Chapter</th><th style='width:30%'>Revision</th></tr></thead>`; const tbody = document.createElement('tbody');
+        chapters.forEach((ch, index) => { const tr = document.createElement('tr'); if(getTick(cls, subName, ch, 'revised')) tr.classList.add('highlight'); const tdName = document.createElement('td'); tdName.innerHTML = `<div style='font-weight:600'>${index+1}. ${ch}</div>`; const tdRev = document.createElement('td'); const rchk = document.createElement('input'); rchk.type='checkbox'; rchk.checked = getTick(cls, subName, ch, 'revised'); rchk.addEventListener('change', e => setTick(cls, subName, ch, 'revised', e.target.checked)); tdRev.appendChild(rchk); if(editMode[cls][subName]){ const del = document.createElement('button'); del.textContent='Delete'; del.className='del-btn'; del.onclick = () => { if(confirm('Delete "' + ch + '"?')) removeChapterFrom(cls, subName, ch); }; tdName.appendChild(del); } tr.appendChild(tdName); tr.appendChild(tdRev); tbody.appendChild(tr); });
+        table.appendChild(tbody); partBlock.appendChild(table);
+        if(editMode[cls][subName]){ const addRow = document.createElement('div'); addRow.className='edit-row'; const inp = document.createElement('input'); inp.type='text'; inp.placeholder='Add chapter'; inp.style.flex='1'; const addBtn = document.createElement('button'); addBtn.className='btn'; addBtn.textContent='Add'; addBtn.onclick = () => { if(inp.value.trim()){ addChapterTo(cls, subName, inp.value.trim()); inp.value=''; } }; addRow.appendChild(inp); addRow.appendChild(addBtn); partBlock.appendChild(addRow); partBlock.appendChild(document.createElement('div')).className='edit-mode-note'; partBlock.lastChild.textContent='Edit mode: add or remove chapters here.'; }
+        block.appendChild(partBlock);
+      });
+      content.appendChild(block);
+    } else {
+      const chapters = state.syllabus[cls][subjKey] ? [...state.syllabus[cls][subjKey]] : []; const block = document.createElement('section'); block.className='card'; let revised = 0; chapters.forEach(ch => { if(getTick(cls, subjKey, ch, 'revised')) revised++; }); const revPct = Math.round((revised / Math.max(1, chapters.length)) * 100); const header = document.createElement('div'); header.className='panel-title'; header.innerHTML = `<div><strong>${subjKey}</strong><div class='small'>${chapters.length} chapters</div></div><div class='panel-box'><div class='small'>Revision ${revised}/${chapters.length}</div><div class='progress' style='margin-top:5px'><div style='width:${revPct}%;'></div></div></div>`; const editBtn = document.createElement('button'); editBtn.textContent = editMode[cls][subjKey] ? 'Done' : 'Edit'; editBtn.className='btn'; editBtn.onclick = () => { editMode[cls][subjKey] = !editMode[cls][subjKey]; render(); }; header.querySelector('div').appendChild(editBtn); block.appendChild(header); const table = document.createElement('table'); table.innerHTML = `<thead><tr><th style='width:70%'>Chapter</th><th style='width:30%'>Revision</th></tr></thead>`; const tbody = document.createElement('tbody'); chapters.forEach((ch, index) => { const tr = document.createElement('tr'); if(getTick(cls, subjKey, ch, 'revised')) tr.classList.add('highlight'); const tdName = document.createElement('td'); tdName.innerHTML = `<div style='font-weight:600'>${index + 1}. ${ch}</div>`; const tdRev = document.createElement('td'); const rchk = document.createElement('input'); rchk.type='checkbox'; rchk.checked = getTick(cls, subjKey, ch, 'revised'); rchk.addEventListener('change', e => setTick(cls, subjKey, ch, 'revised', e.target.checked)); tdRev.appendChild(rchk); if(editMode[cls][subjKey]){ const del = document.createElement('button'); del.textContent='Delete'; del.className='del-btn'; del.onclick = () => { if(confirm('Delete "' + ch + '"?')) removeChapterFrom(cls, subjKey, ch); }; tdName.appendChild(del); } tr.appendChild(tdName); tr.appendChild(tdRev); tbody.appendChild(tr); }); table.appendChild(tbody); block.appendChild(table); if(editMode[cls][subjKey]){ const addRow = document.createElement('div'); addRow.className='edit-row'; const inp = document.createElement('input'); inp.type='text'; inp.placeholder='Add chapter'; inp.style.flex='1'; const addBtn = document.createElement('button'); addBtn.className='btn'; addBtn.textContent='Add'; addBtn.onclick = () => { if(inp.value.trim()){ addChapterTo(cls, subjKey, inp.value.trim()); inp.value=''; } }; addRow.appendChild(inp); addRow.appendChild(addBtn); block.appendChild(addRow); const note = document.createElement('div'); note.className='edit-mode-note'; note.textContent='Edit mode: add or remove chapters here.'; block.appendChild(note); } content.appendChild(block);
+    }
+  });
+
+  const overall = computeOverallAllClasses();
+  overallBar.style.width = overall.pct + '%'; overallPct.textContent = overall.pct + '%'; overallCounts.textContent = `${overall.total} chapters • completed ${overall.done}/${overall.total}`;
+  const c11 = computeClassProgress('11th'), c12 = computeClassProgress('12th');
+  document.getElementById('class11Bar').style.width = c11.pct + '%'; document.getElementById('class12Bar').style.width = c12.pct + '%';
+  document.getElementById('class11Pct').textContent = c11.pct + '%'; document.getElementById('class12Pct').textContent = c12.pct + '%';
+  subjectStats.innerHTML = '';
+  ['Physics','Chemistry','Mathematics'].forEach(s => { let totalCh = 0, completedChapters = 0; if(s === 'Chemistry'){ ['11th','12th'].forEach(clsName => { const chem = state.syllabus[clsName].Chemistry; const all = [...chem.Physical, ...chem.Organic, ...chem.Inorganic]; totalCh += all.length; all.forEach(ch => { if(getTick(clsName,'Chemistry - Physical',ch,'revised') || getTick(clsName,'Chemistry - Organic',ch,'revised') || getTick(clsName,'Chemistry - Inorganic',ch,'revised')) completedChapters++; }); }); } else { ['11th','12th'].forEach(clsName => { const chs = state.syllabus[clsName][s] || []; totalCh += chs.length; chs.forEach(ch => { if(getTick(clsName, s, ch, 'revised')) completedChapters++; }); }); } const percent = totalCh ? Math.round((completedChapters / totalCh) * 100) : 0; const el = document.createElement('div'); el.innerHTML = `<div style='display:flex;justify-content:space-between'><div><strong>${s}</strong></div><div class='small'>${percent}% ( ${completedChapters}/${totalCh} )</div></div>`; subjectStats.appendChild(el); });
+  enforceCredit();
+}
+
+document.getElementById('tab11').addEventListener('click', ()=>{ state.cls='11th'; state.view='syllabus'; saveState(); updateTabs(); render(); });
+document.getElementById('tab12').addEventListener('click', ()=>{ state.cls='12th'; state.view='syllabus'; saveState(); updateTabs(); render(); });
+document.getElementById('tabTests').addEventListener('click', ()=>{ state.view='tests'; saveState(); updateTabs(); render(); });
+function updateTabs(){ document.getElementById('tab11').classList.toggle('active', state.view === 'syllabus' && state.cls === '11th'); document.getElementById('tab12').classList.toggle('active', state.view === 'syllabus' && state.cls === '12th'); document.getElementById('tabTests').classList.toggle('active', state.view === 'tests'); }
+const themeBtn = document.getElementById('themeBtn'); (function initTheme(){ document.documentElement.setAttribute('data-theme', 'dark'); themeBtn.textContent = 'Light'; })(); themeBtn.addEventListener('click', ()=>{ const cur = document.documentElement.getAttribute('data-theme') || 'light'; const next = cur === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); themeBtn.textContent = next === 'dark' ? 'Light' : 'Dark'; });
+updateTabs(); render();
+</script>
+</body>
+</html>
